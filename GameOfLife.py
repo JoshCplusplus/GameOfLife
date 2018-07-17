@@ -25,38 +25,41 @@ def surrounding(obj):
     global NextAlive
     global NextDead
     global Birth
+    global Checked
 
+    if obj in Checked:
+        return
     if WholeBoard[obj.y][obj.x + 1].alive == True:
         count += 1
-    elif WholeBoard[obj.y][obj.x+1] not in Birth and obj.alive == True:
+    elif WholeBoard[obj.y][obj.x+1] not in Birth and obj.alive == True and WholeBoard[obj.y][obj.x+1].alive == False:
         surrounding(WholeBoard[obj.y][obj.x+1])
     if WholeBoard[obj.y][obj.x - 1].alive == True:
         count += 1
-    elif WholeBoard[obj.y][obj.x-1] not in Birth and obj.alive == True:
+    elif WholeBoard[obj.y][obj.x-1] not in Birth and obj.alive == True and WholeBoard[obj.y][obj.x-1].alive == False:
         surrounding(WholeBoard[obj.y][obj.x-1])
     if WholeBoard[obj.y + 1][obj.x].alive == True:
         count += 1
-    elif WholeBoard[obj.y+1][obj.x] not in Birth and obj.alive == True:
+    elif WholeBoard[obj.y+1][obj.x] not in Birth and obj.alive == True and WholeBoard[obj.y+1][obj.x].alive == False:
         surrounding(WholeBoard[obj.y+1][obj.x])
     if WholeBoard[obj.y - 1][obj.x].alive == True:
         count += 1
-    elif WholeBoard[obj.y-1][obj.x] not in Birth and obj.alive == True:
+    elif WholeBoard[obj.y-1][obj.x] not in Birth and obj.alive == True and WholeBoard[obj.y-1][obj.x].alive == False:
         surrounding(WholeBoard[obj.y-1][obj.x])
     if WholeBoard[obj.y + 1][obj.x + 1].alive == True:
         count += 1
-    elif WholeBoard[obj.y+1][obj.x+1] not in Birth and obj.alive == True:
+    elif WholeBoard[obj.y+1][obj.x+1] not in Birth and obj.alive == True and WholeBoard[obj.y+1][obj.x+1].alive == False:
         surrounding(WholeBoard[obj.y+1][obj.x+1])
     if WholeBoard[obj.y - 1][obj.x + 1].alive == True:
         count += 1
-    elif WholeBoard[obj.y-1][obj.x+1] not in Birth and obj.alive == True:
+    elif WholeBoard[obj.y-1][obj.x+1] not in Birth and obj.alive == True and WholeBoard[obj.y-1][obj.x+1].alive == False:
         surrounding(WholeBoard[obj.y-1][obj.x+1])
     if WholeBoard[obj.y - 1][obj.x - 1].alive == True:
         count += 1
-    elif WholeBoard[obj.y-1][obj.x-1] not in Birth and obj.alive == True:
+    elif WholeBoard[obj.y-1][obj.x-1] not in Birth and obj.alive == True and WholeBoard[obj.y-1][obj.x-1].alive == False:
         surrounding(WholeBoard[obj.y-1][obj.x-1])
     if WholeBoard[obj.y + 1][obj.x - 1].alive == True:
         count += 1
-    elif WholeBoard[obj.y+1][obj.x-1] not in Birth and obj.alive == True:
+    elif WholeBoard[obj.y+1][obj.x-1] not in Birth and obj.alive == True and WholeBoard[obj.y+1][obj.x-1].alive == False:
         surrounding(WholeBoard[obj.y+1][obj.x-1])
     if obj.alive == False and count == 3:
         Birth.append(obj)
@@ -64,28 +67,34 @@ def surrounding(obj):
         NextAlive.append(obj)
     elif obj.alive == True:
         NextDead.append(obj)
+    Checked.append(obj)
 
 def begin():
     global AliveList
     global NextAlive
     global NextDead
     global Birth
+    global Checked
+
 
     for obj in AliveList:
         surrounding(obj)
     for obj in NextDead:
+
         obj.color_change()
     AliveList = NextAlive + Birth
     for obj in Birth:
         obj.color_change()
+
     NextAlive = []
     NextDead = []
     Birth = []
+    Checked = []
 
 
 
 
-
+Checked = []
 Birth = []
 NextAlive = []
 NextDead = []
