@@ -1,4 +1,6 @@
 from tkinter import *
+import time
+import threading
 #import tkinter which is all I use for this
 
 class board():
@@ -91,6 +93,12 @@ def begin():
     Birth = []
     Checked = []
 
+def auto():
+    begin()
+    root.after(800,auto)
+
+
+
 
 
 
@@ -99,12 +107,14 @@ Birth = []
 NextAlive = []
 NextDead = []
 AliveList = []
-length = 15
+length = 30
 WholeBoard = [[] for _ in range(length)]
 root = Tk()
 labels = [[] for _ in range(length)]
-start = Button(root, text = "Start", background = 'blue', command=begin)
-start.grid(row = length+1, column=length+1)
+step = Button(root, text = "Step", background = 'blue', command=begin)
+step.grid(row = length+1, column=length+1)
+start = Button(root, text= "Start", background = 'red', command=auto)
+start.grid(row = length, column = length+1)
 for r in range(length):
     for c in range(length):
         labels[r].append(' ')
@@ -113,6 +123,7 @@ for r in range(length):
     for c in range(length):
         bood = board()
         WholeBoard[r].append(bood)
+
 
 root.mainloop()
 
