@@ -94,14 +94,20 @@ def begin():
     Checked = []
 
 def auto():
-    begin()
-    root.after(800,auto)
+    if Pause == False:
+        begin()
+        root.after(800,auto)
 
 
+def pause():
+    global Pause
+    Pause = True
 
+def unpause():
+    global Pause
+    Pause = False
 
-
-
+Pause = False
 Checked = []
 Birth = []
 NextAlive = []
@@ -113,8 +119,10 @@ root = Tk()
 labels = [[] for _ in range(length)]
 step = Button(root, text = "Step", background = 'blue', command=begin)
 step.grid(row = length+1, column=length+1)
-start = Button(root, text= "Start", background = 'red', command=auto)
-start.grid(row = length, column = length+1)
+start = Button(root, text= "Start", background = 'red', command=lambda:[unpause(),auto()])
+start.grid(row = length-1, column = length+1)
+stop = Button(root, text= "Stop", background = 'green', command=pause)
+stop.grid(row = length, column = length+1)
 for r in range(length):
     for c in range(length):
         labels[r].append(' ')
