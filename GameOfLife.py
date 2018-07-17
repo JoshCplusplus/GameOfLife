@@ -1,8 +1,10 @@
 from tkinter import *
-
+#import tkinter which is all I use for this
 
 class board():
+    #my board class which controls each square and changing the colors
     def color_change(self):
+        #changes color of the object passed in based on its background color
         if self.button.cget('bg') == 'black':
             self.button.configure(bg='white')
             AliveList.append(self)
@@ -18,45 +20,73 @@ class board():
         self.y = r
         self.alive = False
 
+def surrounding(obj):
+    count = 0
+    global NextAlive
+    global NextDead
+    global Birth
+
+    if WholeBoard[obj.y][obj.x + 1].alive == True:
+        count += 1
+    elif WholeBoard[obj.y][obj.x+1] not in Birth and obj.alive == True:
+        surrounding(WholeBoard[obj.y][obj.x+1])
+    if WholeBoard[obj.y][obj.x - 1].alive == True:
+        count += 1
+    elif WholeBoard[obj.y][obj.x-1] not in Birth and obj.alive == True:
+        surrounding(WholeBoard[obj.y][obj.x-1])
+    if WholeBoard[obj.y + 1][obj.x].alive == True:
+        count += 1
+    elif WholeBoard[obj.y+1][obj.x] not in Birth and obj.alive == True:
+        surrounding(WholeBoard[obj.y+1][obj.x])
+    if WholeBoard[obj.y - 1][obj.x].alive == True:
+        count += 1
+    elif WholeBoard[obj.y-1][obj.x] not in Birth and obj.alive == True:
+        surrounding(WholeBoard[obj.y-1][obj.x])
+    if WholeBoard[obj.y + 1][obj.x + 1].alive == True:
+        count += 1
+    elif WholeBoard[obj.y+1][obj.x+1] not in Birth and obj.alive == True:
+        surrounding(WholeBoard[obj.y+1][obj.x+1])
+    if WholeBoard[obj.y - 1][obj.x + 1].alive == True:
+        count += 1
+    elif WholeBoard[obj.y-1][obj.x+1] not in Birth and obj.alive == True:
+        surrounding(WholeBoard[obj.y-1][obj.x+1])
+    if WholeBoard[obj.y - 1][obj.x - 1].alive == True:
+        count += 1
+    elif WholeBoard[obj.y-1][obj.x-1] not in Birth and obj.alive == True:
+        surrounding(WholeBoard[obj.y-1][obj.x-1])
+    if WholeBoard[obj.y + 1][obj.x - 1].alive == True:
+        count += 1
+    elif WholeBoard[obj.y+1][obj.x-1] not in Birth and obj.alive == True:
+        surrounding(WholeBoard[obj.y+1][obj.x-1])
+    if obj.alive == False and count == 3:
+        Birth.append(obj)
+    elif obj.alive == True and count == 2 or count == 3:
+        NextAlive.append(obj)
+    elif obj.alive == True:
+        NextDead.append(obj)
+
 def begin():
     global AliveList
     global NextAlive
     global NextDead
+    global Birth
 
     for obj in AliveList:
-        print(obj)
-        count = 0
-        if WholeBoard[obj.y][obj.x+1].alive == True:
-            count += 1
-        if WholeBoard[obj.y][obj.x-1].alive == True:
-            count += 1
-        if WholeBoard[obj.y+1][obj.x].alive == True:
-            count += 1
-        if WholeBoard[obj.y-1][obj.x].alive == True:
-            count += 1
-        if WholeBoard[obj.y+1][obj.x+1].alive == True:
-            count += 1
-        if WholeBoard[obj.y-1][obj.x+1].alive == True:
-            count += 1
-        if WholeBoard[obj.y-1][obj.x-1].alive == True:
-            count += 1
-        if WholeBoard[obj.y+1][obj.x-1].alive == True:
-            count += 1
-        if count == 2 or count == 3:
-            NextAlive.append(obj)
-        else:
-            NextDead.append(obj)
+        surrounding(obj)
     for obj in NextDead:
         obj.color_change()
-    AliveList = NextAlive
+    AliveList = NextAlive + Birth
+    for obj in Birth:
+        obj.color_change()
     NextAlive = []
     NextDead = []
+    Birth = []
 
 
 
 
 
-
+Birth = []
 NextAlive = []
 NextDead = []
 AliveList = []
