@@ -1,138 +1,133 @@
 from tkinter import *
-import time
-import threading
-#import tkinter which is all I use for this
 
-class board():
-    #my board class which controls each square and changing the colors
-    def color_change(self):
-        #changes color of the object passed in based on its background color
+
+class Board():
+    def __init__(self, length):
+        self.length = length
+        self.wholeBoard = [[] for _ in range(length)]
+
+    def setup(self, root, game, board):
+        self.step = Button(root, text="Step", background='blue', command=lambda: game.begin(self.wholeBoard, game))
+        self.step.grid(row=2, column=self.length + 1)
+        self.start = Button(root, text="Start", background='red',
+                            command=lambda: [game.pause(0), game.auto(root, self.wholeBoard, game)])
+        self.start.grid(row=0, column=self.length + 1)
+        self.stop = Button(root, text="Stop", background='green', command=lambda: game.pause(1))
+        self.stop.grid(row=1, column=self.length + 1)
+        self.clear = Button(root, text="Clear", background = 'yellow', command=lambda: game.clear(game))
+        self.clear.grid(row=3, column=self.length+1)
+        for r in range(self.length):
+            for c in range(self.length):
+                self.button = Piece(root, r, c, game)
+                self.wholeBoard[r].append(self.button)
+
+
+class Piece():
+    def __init__(self, root, r, c, game):
+        self.button = Button(root, padx=10, command=lambda: self.color_change(game), text=' ', background='black')
+        self.button.grid(row=r, column=c)
+        self.y = r
+        self.x = c
+        self.alive = False
+
+    def color_change(self, game):
         if self.button.cget('bg') == 'black':
             self.button.configure(bg='white')
-            AliveList.append(self)
+            game.aliveList.append(self)
             self.alive = True
         else:
             self.button.configure(bg='black')
-            AliveList.remove(self)
+            game.aliveList.remove(self)
             self.alive = False
+
+
+class Game():
     def __init__(self):
-        self.button = Button(root, padx=10, command=self.color_change, text=labels[r][c], background='black')
-        self.button.grid(row=r, column=c)
-        self.x = c
-        self.y = r
-        self.alive = False
+        self.checkedSquares = []
+        self.nextAlive = []
+        self.nextDead = []
+        self.aliveList = []
+        self.stopped = True
 
-def surrounding(obj):
-    count = 0
-    global NextAlive
-    global NextDead
-    global Birth
-    global Checked
+    def clear(self, game):
+        for obj in self.aliveList:
+            obj.color_change(game)
 
-    if obj in Checked:
-        return
-    if WholeBoard[obj.y][obj.x + 1].alive == True:
-        count += 1
-    elif WholeBoard[obj.y][obj.x+1] not in Birth and obj.alive == True and WholeBoard[obj.y][obj.x+1].alive == False:
-        surrounding(WholeBoard[obj.y][obj.x+1])
-    if WholeBoard[obj.y][obj.x - 1].alive == True:
-        count += 1
-    elif WholeBoard[obj.y][obj.x-1] not in Birth and obj.alive == True and WholeBoard[obj.y][obj.x-1].alive == False:
-        surrounding(WholeBoard[obj.y][obj.x-1])
-    if WholeBoard[obj.y + 1][obj.x].alive == True:
-        count += 1
-    elif WholeBoard[obj.y+1][obj.x] not in Birth and obj.alive == True and WholeBoard[obj.y+1][obj.x].alive == False:
-        surrounding(WholeBoard[obj.y+1][obj.x])
-    if WholeBoard[obj.y - 1][obj.x].alive == True:
-        count += 1
-    elif WholeBoard[obj.y-1][obj.x] not in Birth and obj.alive == True and WholeBoard[obj.y-1][obj.x].alive == False:
-        surrounding(WholeBoard[obj.y-1][obj.x])
-    if WholeBoard[obj.y + 1][obj.x + 1].alive == True:
-        count += 1
-    elif WholeBoard[obj.y+1][obj.x+1] not in Birth and obj.alive == True and WholeBoard[obj.y+1][obj.x+1].alive == False:
-        surrounding(WholeBoard[obj.y+1][obj.x+1])
-    if WholeBoard[obj.y - 1][obj.x + 1].alive == True:
-        count += 1
-    elif WholeBoard[obj.y-1][obj.x+1] not in Birth and obj.alive == True and WholeBoard[obj.y-1][obj.x+1].alive == False:
-        surrounding(WholeBoard[obj.y-1][obj.x+1])
-    if WholeBoard[obj.y - 1][obj.x - 1].alive == True:
-        count += 1
-    elif WholeBoard[obj.y-1][obj.x-1] not in Birth and obj.alive == True and WholeBoard[obj.y-1][obj.x-1].alive == False:
-        surrounding(WholeBoard[obj.y-1][obj.x-1])
-    if WholeBoard[obj.y + 1][obj.x - 1].alive == True:
-        count += 1
-    elif WholeBoard[obj.y+1][obj.x-1] not in Birth and obj.alive == True and WholeBoard[obj.y+1][obj.x-1].alive == False:
-        surrounding(WholeBoard[obj.y+1][obj.x-1])
-    if obj.alive == False and count == 3:
-        Birth.append(obj)
-    elif obj.alive == True and count == 2 or count == 3:
-        NextAlive.append(obj)
-    elif obj.alive == True:
-        NextDead.append(obj)
-    Checked.append(obj)
+    def pause(self, num):
+        if num == 0:
+            self.stopped = False
+        else:
+            self.stopped = True
 
-def begin():
-    global AliveList
-    global NextAlive
-    global NextDead
-    global Birth
-    global Checked
+    def auto(self, root, board, game):
+        if self.stopped == False:
+            self.begin(board, game)
+            root.after(800, self.auto, root, board, game)
 
+    def begin(self, board, game):
+        for obj in self.aliveList:
+            self.surrounding(obj, board)
+        for obj in self.nextDead:
+            obj.color_change(game)
+        for obj in self.nextAlive:
+            obj.color_change(game)
+        self.nextDead, self.nextAlive, self.checkedSquares = [], [], []
 
-    for obj in AliveList:
-        surrounding(obj)
-    for obj in NextDead:
+    def surrounding(self, obj, board):
+        count = 0
+        boardR = board[obj.y][obj.x + 1]
+        boardL = board[obj.y][obj.x - 1]
+        boardU = board[obj.y + 1][obj.x]
+        boardD = board[obj.y - 1][obj.x]
+        boardRU = board[obj.y + 1][obj.x + 1]
+        boardRD = board[obj.y - 1][obj.x + 1]
+        boardLU = board[obj.y + 1][obj.x - 1]
+        boardLD = board[obj.y - 1][obj.x - 1]
 
-        obj.color_change()
-    AliveList = NextAlive + Birth
-    for obj in Birth:
-        obj.color_change()
-
-    NextAlive = []
-    NextDead = []
-    Birth = []
-    Checked = []
-
-def auto():
-    if Pause == False:
-        begin()
-        root.after(800,auto)
-
-
-def pause():
-    global Pause
-    Pause = True
-
-def unpause():
-    global Pause
-    Pause = False
-
-Pause = False
-Checked = []
-Birth = []
-NextAlive = []
-NextDead = []
-AliveList = []
-length = 30
-WholeBoard = [[] for _ in range(length)]
-root = Tk()
-labels = [[] for _ in range(length)]
-step = Button(root, text = "Step", background = 'blue', command=begin)
-step.grid(row = length+1, column=length+1)
-start = Button(root, text= "Start", background = 'red', command=lambda:[unpause(),auto()])
-start.grid(row = length-1, column = length+1)
-stop = Button(root, text= "Stop", background = 'green', command=pause)
-stop.grid(row = length, column = length+1)
-for r in range(length):
-    for c in range(length):
-        labels[r].append(' ')
-
-for r in range(length):
-    for c in range(length):
-        bood = board()
-        WholeBoard[r].append(bood)
+        if obj in self.checkedSquares:
+            return
+        if boardR.alive == True:
+            count += 1
+        elif boardR not in self.checkedSquares and boardR.alive == False and obj.alive == True:
+            self.surrounding(boardR, board)
+        if boardL.alive == True:
+            count += 1
+        elif boardL not in self.checkedSquares and boardL.alive == False and obj.alive == True:
+            self.surrounding(boardL, board)
+        if boardU.alive == True:
+            count += 1
+        elif boardU not in self.checkedSquares and boardU.alive == False and obj.alive == True:
+            self.surrounding(boardU, board)
+        if boardD.alive == True:
+            count += 1
+        elif boardD not in self.checkedSquares and boardD.alive == False and obj.alive == True:
+            self.surrounding(boardD, board)
+        if boardRU.alive == True:
+            count += 1
+        elif boardRU not in self.checkedSquares and boardRU.alive == False and obj.alive == True:
+            self.surrounding(boardRU, board)
+        if boardRD.alive == True:
+            count += 1
+        elif boardRD not in self.checkedSquares and boardRD.alive == False and obj.alive == True:
+            self.surrounding(boardRD, board)
+        if boardLU.alive == True:
+            count += 1
+        elif boardLU not in self.checkedSquares and boardLU.alive == False and obj.alive == True:
+            self.surrounding(boardLU, board)
+        if boardLD.alive == True:
+            count += 1
+        elif boardLD not in self.checkedSquares and boardLD.alive == False and obj.alive == True:
+            self.surrounding(boardLD, board)
+        if obj.alive is True and (count < 2 or count > 3):
+            self.nextDead.append(obj)
+        elif obj.alive == False and count == 3:
+            self.nextAlive.append(obj)
+        self.checkedSquares.append(obj)
 
 
-root.mainloop()
-
-
+if __name__ == "__main__":
+    root = Tk()
+    game = Game()
+    board = Board(30)
+    board.setup(root, game, board)
+    root.mainloop()
